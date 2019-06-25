@@ -98,6 +98,7 @@ public class ContentDALImpl implements ContentDAL {
         Criteria criteria = Criteria.where("id").is(idMenu).and("value.id").is(idValue);
         Aggregation agg = newAggregation(
                 unwind("value"),
+                project("value"),
                 match(criteria)
         );
 //        AggregationResults<Value> results = mongoTemplate.aggregate(agg, Content.class, Value.class);

@@ -111,12 +111,12 @@ public class ContentController {
     }
 
     //get value by menu and companyId
-//    @RequestMapping(value = "/values/{menu}/{companyId}", method = RequestMethod.GET)
-//    public List<Content> listValue(@PathVariable String menu, @PathVariable ObjectId companyId) {
-//        List<Content> listContent = contentDAL.getValue(menu, companyId);
-//        if (listContent == null) {
-//            LOG.info("Data Not Found at Menu :" + menu + ", Company:" + companyId);
-//        }
-//        return listContent;
-//    }
+    @RequestMapping(value = "/values/{menu}/{companyId}", method = RequestMethod.GET)
+    public List<Content> listValue(@PathVariable String menu, @PathVariable ObjectId companyId) {
+        List<Content> listContent = contentDAL.getValue(menu, companyId);
+        if (listContent == null) {
+            LOG.info("Data Not Found at Menu :" + menu + ", Company:" + companyId);
+        }
+        return listContent;
+    }
 }
