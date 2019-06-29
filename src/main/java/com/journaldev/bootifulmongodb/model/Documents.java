@@ -20,7 +20,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Getter
 @Document(collection = "content")
-public class Content {
+public class Documents {
     
     @Id
     private ObjectId id = ObjectId.get();

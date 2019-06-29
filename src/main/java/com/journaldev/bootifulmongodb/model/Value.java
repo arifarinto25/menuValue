@@ -34,6 +34,7 @@ public class Value {
     private String desc1;
     private String desc2;
     private String desc3;
+    private List<String> schedules = new ArrayList<>();
     private List<String> imgs = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
     private Integer price;
