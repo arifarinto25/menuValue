@@ -9,13 +9,20 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
 import com.journaldev.bootifulmongodb.model.Content;
+import com.journaldev.bootifulmongodb.model.ContentObject;
 import com.journaldev.bootifulmongodb.model.Value;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.skip;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.sort;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.unwind;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Update;
@@ -94,17 +101,56 @@ public class ContentDALImpl implements ContentDAL {
     }
 
     @Override
-    public String getOneValue(ObjectId idMenu, ObjectId idValue) {
-        Criteria criteria = Criteria.where("id").is(idMenu).and("value.id").is(idValue);
+    public List<ContentObject> getOneValue(ObjectId idMenu, ObjectId idValue) {
+        Criteria criteria = Criteria.where("id").is(idMenu);
+        Criteria criteria2 = Criteria.where("value.id").is(idValue);
+        Aggregation agg = newAggregation(
+                match(criteria),
+                unwind("value"),
+                match(criteria2)
+        );
+        AggregationResults<ContentObject> groupResults = mongoTemplate.aggregate(agg, ContentObject.class, ContentObject.class);
+        List<ContentObject> listContent = groupResults.getMappedResults();
+        return listContent;
+    }
+    
+    @Override
+    public List<ContentObject> getOneValueByName(String menu, ObjectId idValue) {
+        Criteria criteria = Criteria.where("menu").is(menu);
+        Criteria criteria2 = Criteria.where("value.id").is(idValue);
+        Aggregation agg = newAggregation(
+                match(criteria),
+                unwind("value"),
+                match(criteria2)
+        );
+        AggregationResults<ContentObject> groupResults = mongoTemplate.aggregate(agg, ContentObject.class, ContentObject.class);
+        List<ContentObject> listContent = groupResults.getMappedResults();
+        return listContent;
+    }
+
+    @Override
+    public Page<Content> findValueByCompany(ObjectId companyId, SearchRequestDto searchDto, Pageable pageable) {
+//        long total = getCount(companyId);
+        long total = 10;
+        Criteria criteria = Criteria.where("companyId").is(companyId);
+        for (FieldRequestDto field : searchDto.getSearch()) {
+            criteria = criteria.and(field.getField()).regex(field.getKey(), "i");
+        }
+        
         Aggregation agg = newAggregation(
                 unwind("value"),
-                project("value"),
-                match(criteria)
+                project("value","menu"),
+                match(criteria),
+                skip(pageable.getPageNumber() * pageable.getPageSize()),
+                limit(pageable.getPageSize()),
+                sort(pageable.getSort())
         );
-//        AggregationResults<Value> results = mongoTemplate.aggregate(agg, Content.class, Value.class);
-//        System.out.println("Output ====>" + results.getRawResults().toJson());
-//        List<Value> mappedResult = results.getMappedResults();
-        return mongoTemplate.aggregate(agg, Content.class, Value.class).getRawResults().toJson();
+        
+        AggregationResults<Content> groupResults = mongoTemplate.aggregate(agg, "content", Content.class);
+        List<Content> listContent = groupResults.getMappedResults();
+        System.out.println(agg);
+        Page<Content> resultPage = new PageImpl<>(listContent, pageable, total);
+        return resultPage;
     }
 
 }

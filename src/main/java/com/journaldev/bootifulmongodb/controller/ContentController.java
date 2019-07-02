@@ -12,8 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.journaldev.bootifulmongodb.model.Content;
 import com.journaldev.bootifulmongodb.dal.ContentDAL;
 import com.journaldev.bootifulmongodb.dal.ContentRepository;
+import com.journaldev.bootifulmongodb.dal.SearchRequestDto;
+import com.journaldev.bootifulmongodb.model.ContentObject;
 import com.journaldev.bootifulmongodb.model.Value;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -106,8 +113,14 @@ public class ContentController {
     
     //get one value by menuId and valueId
     @RequestMapping(value = "/value/{menuId}/{valueId}", method = RequestMethod.GET)
-    public String getOneValue(@PathVariable ObjectId menuId, @PathVariable ObjectId valueId) {
+    public List<ContentObject> getOneValue(@PathVariable ObjectId menuId, @PathVariable ObjectId valueId) {
         return contentDAL.getOneValue(menuId, valueId);
+    }
+    
+    //get one value by menuId and valueId
+    @RequestMapping(value = "/valueByName/{menu}/{valueId}", method = RequestMethod.GET)
+    public List<ContentObject> getOneValueByName(@PathVariable String menu, @PathVariable ObjectId valueId) {
+        return contentDAL.getOneValueByName(menu, valueId);
     }
 
     //get value by menu and companyId
@@ -118,5 +131,17 @@ public class ContentController {
             LOG.info("Data Not Found at Menu :" + menu + ", Company:" + companyId);
         }
         return listContent;
+    }
+    
+    //get list value paging
+    @RequestMapping(value = "/pageValue/{companyId}", method = RequestMethod.POST)
+    public Page<Content> findAll(@RequestBody @Valid SearchRequestDto searchDto,
+            @PathVariable ObjectId companyId,
+            Pageable pageable, Authentication authentication,
+            HttpServletRequest request) {
+        Page<Content> pageValue;
+        pageValue = contentDAL.findValueByCompany(companyId, searchDto, pageable);
+        return pageValue;
+        
     }
 }

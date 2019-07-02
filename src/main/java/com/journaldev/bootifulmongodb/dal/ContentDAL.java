@@ -3,8 +3,11 @@ package com.journaldev.bootifulmongodb.dal;
 import java.util.List;
 
 import com.journaldev.bootifulmongodb.model.Content;
+import com.journaldev.bootifulmongodb.model.ContentObject;
 import com.journaldev.bootifulmongodb.model.Value;
 import org.bson.types.ObjectId;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ContentDAL {
     
@@ -22,5 +25,9 @@ public interface ContentDAL {
     
     Void deleteValue(ObjectId idMenu, ObjectId idValue);
     
-    String getOneValue(ObjectId idMenu, ObjectId idValue);
+    List<ContentObject> getOneValue(ObjectId idMenu, ObjectId idValue);
+    
+    List<ContentObject> getOneValueByName(String menu, ObjectId idValue);
+    
+    Page<Content> findValueByCompany(ObjectId companyId, SearchRequestDto searchDto, Pageable pageable);
 }
