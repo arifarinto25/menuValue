@@ -15,4 +15,7 @@ public interface ContentRepository extends MongoRepository<Content, String> {
     
     @Query(fields = "{ 'id': 1, 'companyId':1, 'menu':1,'displayText':1,'enabled':1,'value.$': 1 }")
     public Content findByIdAndValueId(Object id, ObjectId valueId);
+    
+    @Query(fields = "{ 'id': 1, 'companyId':1, 'menu':1,'displayText':1,'enabled':1,'value.$': 1 }")
+    public Content findByMenuAndValueId(String menu, ObjectId valueId);
 }
