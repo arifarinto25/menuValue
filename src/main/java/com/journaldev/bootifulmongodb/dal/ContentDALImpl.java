@@ -11,6 +11,10 @@ import org.springframework.stereotype.Repository;
 import com.journaldev.bootifulmongodb.model.Content;
 import com.journaldev.bootifulmongodb.model.ContentObject;
 import com.journaldev.bootifulmongodb.model.Value;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,6 +36,17 @@ public class ContentDALImpl implements ContentDAL {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+    
+    public static final String DB_FORMAT_DATETIME = "yyyy-M-d HH:mm:ss";           
+
+    public static Date getDate(String dateStr, String format) {
+        final DateFormat formatter = new SimpleDateFormat(format);
+        try {
+            return formatter.parse(dateStr);
+        } catch (ParseException e) {                
+            return null;
+        }
+    }
     
     //update value
     @Override
@@ -102,8 +117,10 @@ public class ContentDALImpl implements ContentDAL {
 
     @Override
     public List<ContentObject> getOneValue(ObjectId idMenu, ObjectId idValue) {
+        String dateStr = "2019-06-15 00:00:00";
         Criteria criteria = Criteria.where("id").is(idMenu);
-        Criteria criteria2 = Criteria.where("value.id").is(idValue);
+//        Criteria criteria2 = Criteria.where("value.id").is(idValue);
+        Criteria criteria2 = Criteria.where("value.creationDate").gte(getDate(dateStr, DB_FORMAT_DATETIME));
         Aggregation agg = newAggregation(
                 match(criteria),
                 unwind("value"),
