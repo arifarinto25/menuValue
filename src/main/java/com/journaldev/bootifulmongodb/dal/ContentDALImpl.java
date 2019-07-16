@@ -117,10 +117,10 @@ public class ContentDALImpl implements ContentDAL {
 
     @Override
     public List<ContentObject> getOneValue(ObjectId idMenu, ObjectId idValue) {
-        String dateStr = "2019-06-15 00:00:00";
+//        String dateStr = "2019-06-15 00:00:00";
         Criteria criteria = Criteria.where("id").is(idMenu);
-//        Criteria criteria2 = Criteria.where("value.id").is(idValue);
-        Criteria criteria2 = Criteria.where("value.creationDate").gte(getDate(dateStr, DB_FORMAT_DATETIME));
+        Criteria criteria2 = Criteria.where("value.id").is(idValue);
+//        Criteria criteria2 = Criteria.where("value.creationDate").gte(getDate(dateStr, DB_FORMAT_DATETIME));
         Aggregation agg = newAggregation(
                 match(criteria),
                 unwind("value"),

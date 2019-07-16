@@ -113,9 +113,8 @@ public class ContentController {
     
     //get one value by menuId and valueId
     @RequestMapping(value = "/value/{menuId}/{valueId}", method = RequestMethod.GET)
-    public List<ContentObject> getOneValue(@PathVariable ObjectId menuId, @PathVariable ObjectId valueId) {
-        return contentDAL.getOneValue(menuId, valueId);
-//        return contentRepository.findByIdAndValueId(menuId,valueId);
+    public Content getOneValue(@PathVariable ObjectId menuId, @PathVariable ObjectId valueId) {
+        return contentRepository.findByIdAndValueId(menuId,valueId);
     }
     
     //get one value by menuId and valueId
