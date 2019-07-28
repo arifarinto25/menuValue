@@ -18,6 +18,8 @@ public interface ContentDAL {
     List<Content> getHome(ObjectId companyId);
 
     List<Content> getValue(String menu, ObjectId companyId);
+    
+    List<ContentObject> getTag(String tag, ObjectId companyId);
 
     Value addValue(String menu, ObjectId id, Value value);
     

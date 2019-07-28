@@ -133,6 +133,16 @@ public class ContentController {
         return listContent;
     }
     
+    //get headline by tag and companyId
+    @RequestMapping(value = "/tagValues/{tag}/{companyId}", method = RequestMethod.GET)
+    public List<ContentObject> listTag(@PathVariable String tag, @PathVariable ObjectId companyId) {
+        List<ContentObject> listContent = contentDAL.getTag(tag, companyId);
+        if (listContent == null) {
+            LOG.info("Data Not Found at Menu :" + tag + ", Company:" + companyId);
+        }
+        return listContent;
+    }
+    
     //get list value paging
     @RequestMapping(value = "/pageValue/{companyId}", method = RequestMethod.POST)
     public Page<Content> findAll(@RequestBody @Valid SearchRequestDto searchDto,

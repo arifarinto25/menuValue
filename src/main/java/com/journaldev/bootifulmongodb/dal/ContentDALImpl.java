@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.limit;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
@@ -101,12 +102,12 @@ public class ContentDALImpl implements ContentDAL {
     @Override
     public Void deleteValue(ObjectId idMenu, ObjectId idValue) {
         Update update = new Update();
-        update.unset("value.$");
+        update.pull("value",Query.query(Criteria.where("id").is(idValue)));
         Criteria criteria = Criteria.where("id").is(idMenu).and("value.id").is(idValue);
         mongoTemplate.updateFirst(Query.query(criteria), update, Content.class);
         return null;
     }
-    
+     
     //get value
     @Override
     public List<Content> getValue(String menu, ObjectId companyId) {
@@ -168,6 +169,23 @@ public class ContentDALImpl implements ContentDAL {
         System.out.println(agg);
         Page<Content> resultPage = new PageImpl<>(listContent, pageable, total);
         return resultPage;
+    }
+
+    //get Tag
+    @Override
+    public List<ContentObject> getTag(String tag, ObjectId companyId) {
+        Criteria criteria = Criteria.where("companyId").is(companyId);
+        Criteria criteria2 = Criteria.where("value.tags").in(tag);
+        Aggregation agg = newAggregation(
+                match(criteria),
+                unwind("value"),
+                match(criteria2),
+                sort(Direction.DESC,"value.creationDate"),
+                limit(5)
+        );
+        AggregationResults<ContentObject> groupResults = mongoTemplate.aggregate(agg, ContentObject.class, ContentObject.class);
+        List<ContentObject> listContent = groupResults.getMappedResults();
+        return listContent;
     }
 
 }
